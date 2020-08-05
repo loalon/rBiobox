@@ -78,14 +78,14 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
   if(multiline && length(genes) > 1 ) {
     d <- as.data.frame(scale(d))
     d <- as.data.frame(cbind(d, time = time, sampleID=rownames(d)))
-    d <- melt(d, measure.vars = genes)
+    d <- reshape2::melt(d, measure.vars = genes)
 
-    myplot <- ggplot(d, aes(x = time, y = value, group = variable, col = variable)) +
+    myplot <- ggplot2::ggplot(d, aes(x = time, y = value, group = variable, col = variable)) +
       stat_summary(fun.data = mean_se, geom = "line", lwd = 1) +
       theme_bw()
 
   } else {
-    myplot <- ggplot(data.frame(x = xVector, y = scale(expr), g = yVector),
+    myplot <- ggplot2::ggplot(data.frame(x = xVector, y = scale(expr), g = yVector),
                      aes(x = x, y = y, group = g)) +
       stat_summary(fun.data = mean_se, geom = "ribbon", fill = "lightgrey", alpha = 0.75) +
       stat_summary(fun.data = mean_se, geom = "line", aes(col = g), lwd = 2) + #      plot_output_list <- lapply(shiftedColors, function(color) {
@@ -113,11 +113,11 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
     mData <- data.frame(PC1 = expr, PC1i = expr * -1)
     #mData$PC1i <- expr * -1
 
-    mData <- melt(mData, measure.vars = c("PC1", "PC1i"))
-    mData$time <- time
+    mData <- reshape2::melt(mData, measure.vars = c("PC1", "PC1i"))
+    mData$xVector <- xVector
     #mData$Treatment <- type
 
-    myplot <- ggplot(mData, aes(x = xVector, y =scale(value), group = variable, col = variable, alpha=variable)) +
+    myplot <- ggplot2::ggplot(mData, aes(x = xVector, y =scale(value), group = variable, col = variable, alpha=variable)) +
       #stat_summary(fun.data = mean_se, alpha = 0.25, geom = "ribbon", col = "grey90") +
 
       stat_summary(fun.data = mean_se, lwd = 2, geom = "line") +
