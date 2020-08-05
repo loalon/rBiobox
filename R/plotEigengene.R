@@ -80,17 +80,17 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
     d <- as.data.frame(cbind(d, time = time, sampleID=rownames(d)))
     d <- reshape2::melt(d, measure.vars = genes)
 
-    myplot <- ggplot2::ggplot(d, aes(x = time, y = value, group = variable, col = variable)) +
-      stat_summary(fun.data = mean_se, geom = "line", lwd = 1) +
-      theme_bw()
+    myplot <- ggplot2::ggplot(d, ggplot2::aes(x = time, y = value, group = variable, col = variable)) +
+      ggplot2::stat_summary(fun.data = mean_se, geom = "line", lwd = 1) +
+      ggplot2::theme_bw()
 
   } else {
     myplot <- ggplot2::ggplot(data.frame(x = xVector, y = scale(expr), g = yVector),
-                     aes(x = x, y = y, group = g)) +
-      stat_summary(fun.data = mean_se, geom = "ribbon", fill = "lightgrey", alpha = 0.75) +
-      stat_summary(fun.data = mean_se, geom = "line", aes(col = g), lwd = 2) + #      plot_output_list <- lapply(shiftedColors, function(color) {
+                              ggplot2::aes(x = x, y = y, group = g)) +
+      ggplot2::stat_summary(fun.data = mean_se, geom = "ribbon", fill = "lightgrey", alpha = 0.75) +
+      ggplot2::stat_summary(fun.data = mean_se, geom = "line", aes(col = g), lwd = 2) + #      plot_output_list <- lapply(shiftedColors, function(color) {
 
-      labs(color = legendTitle)
+      ggplot2::labs(color = legendTitle)
 
   }
 
@@ -117,11 +117,11 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
     mData$xVector <- xVector
     #mData$Treatment <- type
 
-    myplot <- ggplot2::ggplot(mData, aes(x = xVector, y =scale(value), group = variable, col = variable, alpha=variable)) +
+    myplot <- ggplot2::ggplot(mData, ggplot2::aes(x = xVector, y =scale(value), group = variable, col = variable, alpha=variable)) +
       #stat_summary(fun.data = mean_se, alpha = 0.25, geom = "ribbon", col = "grey90") +
 
-      stat_summary(fun.data = mean_se, lwd = 2, geom = "line") +
-      scale_alpha_manual(values=c(1,ratio))
+      ggplot2::stat_summary(fun.data = mean_se, lwd = 2, geom = "line") +
+      ggplot2::scale_alpha_manual(values=c(1,ratio))
     #scale_alpha_discrete(range = c(0.35, 0.9))
       #theme_bw() +
       #facet_wrap(~Treatment, nrow = 2, scales = "free_y") +
@@ -138,7 +138,7 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
 
   if(!grid) {
     myplot <- myplot +
-      theme(axis.line = element_line(colour = "black"),
+      ggplot2::theme(axis.line = element_line(colour = "black"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
             panel.border = element_blank(),
@@ -146,20 +146,20 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
   }
 
   if(multiline == F && is.vector(colors) && length(colors) >= length(unique(yVector))) {
-    myplot <- myplot + scale_color_manual(values=colors)
+    myplot <- myplot + ggplot2::scale_color_manual(values=colors)
   }
 
   if(legend) {
     myplot <- myplot +
-    theme(legend.position = "none")
+      ggplot2::theme(legend.position = "none")
   }
 
   ##add general stuff
   myplot <- myplot +
-    xlab(xLabel) +
-    ylab("z-score") +
+    ggplot2::xlab(xLabel) +
+    ggplot2::ylab("z-score") +
     #ggtitle(title)
-    labs(title = title)
+    ggplot2::labs(title = title)
 
   return (myplot)
 
