@@ -1,12 +1,12 @@
 Package: rBiobox
 Title: Bioinformatics functions
-Version: 0.1.1
+Version: 0.2.0
 Authors@R: 
     person(given = "Alonso",
            family = "Serrano",
            role = c("aut", "cre"),
            email = "bioinformatics@loalon.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           comment = c(ORCID = "0000-0002-1635-6410"))
 Description: Easy to use functions for common bioinformatics tasks.
 License: GPL-3
 Encoding: UTF-8
@@ -18,8 +18,11 @@ Depends:
 Imports:
   ggplot2 (>= 3.3.2),
   RColorBrewer (>= 1.1-2),
-  reshape2 (>= 1.4.4)
+  reshape2 (>= 1.4.4),
+  plotly (>= 4.9.2.1),
+  magrittr (>= 1.5)
 Suggests: 
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+

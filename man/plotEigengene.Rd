@@ -54,3 +54,7 @@ plotEigengene(
 Given a matrix of gene expression data and a set of genes
 obtain the plot for the eigengene of that set.
 }
+\examples{
+plotEigengene(toyData$expressionData, toyData$geneCluster, toyData$time, toyData$conditions)
+
+}

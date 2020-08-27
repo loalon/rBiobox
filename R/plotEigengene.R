@@ -87,8 +87,8 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
   } else {
     myplot <- ggplot2::ggplot(data.frame(x = xVector, y = scale(expr), g = yVector),
                               ggplot2::aes(x = x, y = y, group = g)) +
-      ggplot2::stat_summary(fun.data = mean_se, geom = "ribbon", fill = "lightgrey", alpha = 0.75) +
-      ggplot2::stat_summary(fun.data = mean_se, geom = "line", aes(col = g), lwd = 2) + #      plot_output_list <- lapply(shiftedColors, function(color) {
+      ggplot2::stat_summary(fun.data = ggplot2::mean_se, geom = "ribbon", fill = "lightgrey", alpha = 0.75) +
+      ggplot2::stat_summary(fun.data = ggplot2::mean_se, geom = "line", ggplot2::aes(col = g), lwd = 2) + #      plot_output_list <- lapply(shiftedColors, function(color) {
 
       ggplot2::labs(color = legendTitle)
 
@@ -120,7 +120,7 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
     myplot <- ggplot2::ggplot(mData, ggplot2::aes(x = xVector, y =scale(value), group = variable, col = variable, alpha=variable)) +
       #stat_summary(fun.data = mean_se, alpha = 0.25, geom = "ribbon", col = "grey90") +
 
-      ggplot2::stat_summary(fun.data = mean_se, lwd = 2, geom = "line") +
+      ggplot2::stat_summary(fun.data = ggplot2::mean_se, lwd = 2, geom = "line") +
       ggplot2::scale_alpha_manual(values=c(1,ratio))
     #scale_alpha_discrete(range = c(0.35, 0.9))
       #theme_bw() +
@@ -138,11 +138,11 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
 
   if(!grid) {
     myplot <- myplot +
-      ggplot2::theme(axis.line = element_line(colour = "black"),
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            panel.border = element_blank(),
-            panel.background = element_blank())
+      ggplot2::theme(axis.line = ggplot2::element_line(colour = "black"),
+            panel.grid.major = ggplot2::element_blank(),
+            panel.grid.minor = ggplot2::element_blank(),
+            panel.border = ggplot2::element_blank(),
+            panel.background = ggplot2::element_blank())
   }
 
   if(multiline == F && is.vector(colors) && length(colors) >= length(unique(yVector))) {
