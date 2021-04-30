@@ -22,9 +22,9 @@
 #' plotEigengene(toyData$expressionData, toyData$geneCluster, toyData$time, toyData$conditions)
 #'
 #' @export
-plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
+plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="z-score",
                           inverse = F, title = "", grid = F, colors = c("#009444", "#BE9230"),
-                          legend=T, multiline = F, legendTitle="", plotBothProfiles=F) {
+                          legend=T, legendTitle="", plotBothProfiles=F) {
 
   if(nrow(data) != length(xVector) || nrow(data) != length(yVector)){
     stop("xVector and yVector must contain the same number of items as rows in the expression data")
@@ -33,8 +33,6 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
   if(plotBothProfiles) {
     if(length(unique(yVector)) > 1)
       stop("Plotting both expression profiles can only be done with a one condition dataset, e.g. Control.")
-    if(multiline)
-      stop("Can't plot both expression profiles in multiline mode.")
     if(length(genes) == 1 )
       stop("Can't plot both expression profiles with only one gene.")
     if(inverse)
@@ -47,53 +45,36 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
 
   ## add option to different lines shapes
 
-  ## maybe not scale, or scale optional
-  expr <- NA
+  localData <- data[, genes]
 
-  #d <- data[,which(colnames(data) %in% gene)]
-  d <- data[, genes]
-
-
-  if (length(genes) == 1 ) { #1 gene, directly the data
-    expr <- scale(d)
+  expr <- if (length(genes) == 1 ) { #1 gene, directly the data
+    scale(localData)
 
   } else if (length(genes > 1)) { #cluster, eigengene
-    pca <- prcomp((d))
-    pc1 <- pca$x[, 1]
-    #print(percents <- round(summary(pca)$importance[2,]*100))
+    pca <- prcomp(localData)
+    pc1 <- pca$x[, 1] # extract PC1
 
-    if(sum(sign(cor(pca$x[,1,drop = FALSE], d))) < 0) {
+    # get the main profile
+    if(sum(sign(cor(pca$x[,1,drop = FALSE], localData))) < 0) {
       pc1 <- pc1 * -1
     }
+
+    # reverse profile
     if(inverse && !plotBothProfiles)
       pc1 <- pc1 * -1
 
-
-    expr <- pc1
-
-  }
-
-  myplot <- NA
-
-  if(multiline && length(genes) > 1 ) {
-    d <- as.data.frame(scale(d))
-    d <- as.data.frame(cbind(d, time = time, sampleID=rownames(d)))
-    d <- reshape2::melt(d, measure.vars = genes)
-
-    myplot <- ggplot2::ggplot(d, ggplot2::aes(x = time, y = value, group = variable, col = variable)) +
-      ggplot2::stat_summary(fun.data = mean_se, geom = "line", lwd = 1) +
-      ggplot2::theme_bw()
-
-  } else {
-    myplot <- ggplot2::ggplot(data.frame(x = xVector, y = scale(expr), g = yVector),
-                              ggplot2::aes(x = x, y = y, group = g)) +
-      ggplot2::stat_summary(fun.data = ggplot2::mean_se, geom = "ribbon", fill = "lightgrey", alpha = 0.75) +
-      ggplot2::stat_summary(fun.data = ggplot2::mean_se, geom = "line", ggplot2::aes(col = g), lwd = 2) + #      plot_output_list <- lapply(shiftedColors, function(color) {
-
-      ggplot2::labs(color = legendTitle)
+    pc1
 
   }
 
+
+  myplot <- ggplot2::ggplot(data.frame(x = xVector, y = scale(expr), g = yVector),
+                            ggplot2::aes(x = x, y = y, group = g)) +
+    ggplot2::stat_summary(fun.data = ggplot2::mean_se, geom = "ribbon", fill = "lightgrey", alpha = 0.75) +
+    ggplot2::stat_summary(fun.data = ggplot2::mean_se, geom = "line", ggplot2::aes(col = g), lwd = 2) +
+    ggplot2::labs(color = legendTitle)
+
+  # print both profiles, related to their %
   if(plotBothProfiles) {
 
     pcaPos<- rownames(pca$rotation[which (pca$rotation[,'PC1'] > 0),])
@@ -109,13 +90,11 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
       negative <- colnames(data[,which(colnames(data) %in% pcaPos)])
     }
 
-    ratio <- round(length(negative)/(length(positive)+length(negative)) ,digits=2 )
+    ratio <- round(length(negative)/(length(positive)+length(negative)), digits=2)
     mData <- data.frame(PC1 = expr, PC1i = expr * -1)
-    #mData$PC1i <- expr * -1
 
     mData <- reshape2::melt(mData, measure.vars = c("PC1", "PC1i"))
     mData$xVector <- xVector
-    #mData$Treatment <- type
 
     myplot <- ggplot2::ggplot(mData, ggplot2::aes(x = xVector, y =scale(value), group = variable, col = variable, alpha=variable)) +
       #stat_summary(fun.data = mean_se, alpha = 0.25, geom = "ribbon", col = "grey90") +
@@ -134,7 +113,7 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
   #TODO add orientation
   #theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-  #TODO check if time is factor and advise the user to manually stablish levels if they are not numeric
+  #TODO check if time is factor and advise the user to manually establish levels if they are not numeric
 
   if(!grid) {
     myplot <- myplot +
@@ -145,11 +124,11 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
             panel.background = ggplot2::element_blank())
   }
 
-  if(multiline == F && is.vector(colors) && length(colors) >= length(unique(yVector))) {
+  if(is.vector(colors) && length(colors) >= length(unique(yVector))) {
     myplot <- myplot + ggplot2::scale_color_manual(values=colors)
   }
 
-  if(legend) {
+  if(!legend) {
     myplot <- myplot +
       ggplot2::theme(legend.position = "none")
   }
@@ -157,7 +136,7 @@ plotEigengene <- function(data, genes, xVector, yVector, xLabel = "", yLabel="",
   ##add general stuff
   myplot <- myplot +
     ggplot2::xlab(xLabel) +
-    ggplot2::ylab("z-score") +
+    ggplot2::ylab(yLabel) +
     #ggtitle(title)
     ggplot2::labs(title = title)
 

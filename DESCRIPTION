@@ -23,6 +23,6 @@ Imports:
   magrittr (>= 1.5)
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
 VignetteBuilder: knitr
-
